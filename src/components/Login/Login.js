@@ -4,18 +4,34 @@ import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
 
-
+//lesson 116
 //created outside of the component to show that this does not need ...
 const emailReducer = (state, action) => {
   if(action.type === 'USER_INPUT'){
+    //value: action.val is getting the userinput inside emailChangeHandler func
+    //action.val is the payload we appended in emailChangeHandler func
+    //isValid is checking the validity that state INCLUDES the '@'. The .includes is the validity
+  return { value: action.val, isValid: action.val.includes('@') };
+  }
+  if(action.type === 'INPUT_BLUR'){
+    //state.value is the last state snapshot that was entered for the email. We don't want to lose the input just because it blurred.
+    //isValid is checking if that state includes the '@'
+  return { value: state.value, isValid: state.value.includes('@') }
+  }
+  //for any other action, this default state will be returned
+  return { value: '', isValid: false }
+}
+
+const passwordReducer = (state, action) => {
+  if(action.type === 'USER_INPUT'){
     //value: action.val is getting the userinput inside emailHandler function
     //isValid is checking if that state includes the '@'
-  return { value: action.val, isValid: action.val.includes('@') };
+  return { value: action.val, isValid: action.val.trim().length > 6 };
   }
   if(action.type === 'INPUT_BLUR'){
     //state.value is the last state snapshot that was entered for the email
     //isValid is checking if that state includes the '@'
-    return { value: state.value, isValid: state.value.includes('@') }
+    return { value: state.value, isValid: state.value.trim().length > 6 }
   }
   //for any other action, this default state will be returned
   return { value: '', isValid: false }
@@ -28,9 +44,17 @@ const Login = (props) => {
   // const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
+  //you can treat this like slices of state almost
+  //the dispatchEmail is used like a state updating. Instead of just setting a new state value though, you dispatch an action and that action gets consumed by the FIRST ARGUMENT, used be useReducer
+  //the default values are given to the emailState slice
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: '',
     isValid: false,
+  })
+
+  const [passwordState, dispatchPassword] = useReducer(passwordReducer,  {
+    value: '',
+    isValid: null,
   })
 
   useEffect(() => {
@@ -41,49 +65,29 @@ const Login = (props) => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   const identifier = setTimeout(() => {
-  //     console.log('Checking form validity!');
-  //     setFormIsValid(
-  //       enteredEmail.includes('@') && enteredPassword.trim().length > 6
-  //     );
-  //   }, 500);
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      console.log('Checking form validity!');
+      setFormIsValid(
+        emailState.isValid && passwordState.isValid
+      );
+    }, 500);
 
-  //   return () => {
-  //     console.log('CLEANUP');
-  //     clearTimeout(identifier);
-  //   };
-  // }, [enteredEmail, enteredPassword]);
+    return () => {
+      console.log('CLEANUP');
+      clearTimeout(identifier);
+    };
+  }, [emailState, passwordState]);
 
   const emailChangeHandler = (event) => {
     //type is the action
     // val is the payload and here, we are saving what the user entered
     dispatchEmail({ type: 'USER_INPUT', val: event.target.value })
 
-    setFormIsValid(
-      event.target.value.includes('@') && passwordState.isValid
-    );
+    // setFormIsValid(
+    //   event.target.value.includes('@') && passwordState.isValid
+    // );
   };
-
-  const passwordReducer = (state, action) => {
-    if(action.type === 'USER_INPUT'){
-      //value: action.val is getting the userinput inside emailHandler function
-      //isValid is checking if that state includes the '@'
-    return { value: action.val, isValid: action.val.trim().length > 6 };
-    }
-    if(action.type === 'INPUT_BLUR'){
-      //state.value is the last state snapshot that was entered for the email
-      //isValid is checking if that state includes the '@'
-      return { value: state.value, isValid: state.value.trim().length > 6 }
-    }
-    //for any other action, this default state will be returned
-    return { value: '', isValid: false }
-  }
-
-  const [passwordState, dispatchPassword] = useReducer(passwordReducer,  {
-    value: '',
-    isValid: null,
-  })
 
   const passwordChangeHandler = (event) => {
     dispatchPassword({type: 'USER_INPUT', val: event.target.value})
