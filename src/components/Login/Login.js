@@ -65,19 +65,22 @@ const Login = (props) => {
     };
   }, []);
 
+  //object destructure here to make the useEffect re-run only when both validities change instead of with each state change
+  //How to read: from emailState/passwordState we are extracting isValid and then STORING them in emailisValid/passwordIsValid constant
+  const { isValid: emailisValid } = emailState
+  const { isValid: passwordIsValid } = passwordState
+
   useEffect(() => {
     const identifier = setTimeout(() => {
       console.log('Checking form validity!');
-      setFormIsValid(
-        emailState.isValid && passwordState.isValid
-      );
+      setFormIsValid(emailisValid && passwordIsValid);
     }, 500);
 
     return () => {
       console.log('CLEANUP');
       clearTimeout(identifier);
     };
-  }, [emailState, passwordState]);
+  }, [emailisValid, passwordIsValid]);
 
   const emailChangeHandler = (event) => {
     //type is the action
