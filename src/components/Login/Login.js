@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
 import Button from '../UI/Button/Button';
+import AuthContext from '../../store/auth-context';
 
 //lesson 116
 //created outside of the component to show that this does not need ...
@@ -56,6 +57,9 @@ const Login = (props) => {
     value: '',
     isValid: null,
   })
+
+  //incase you miss it, this is the AuthContext
+  const authCtx = useContext(AuthContext)
 
   useEffect(() => {
     console.log('EFFECT RUNNING');
@@ -112,7 +116,7 @@ const Login = (props) => {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    props.onLogin(emailState.value, passwordState.value);
+    authCtx.onLogin(emailState.value, passwordState.value);
   };
 
   return (
